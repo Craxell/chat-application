@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="business">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+    const socket = io();
+
+    // Variable para almacenar el nombre de usuario
+    let username;
+
+    // Manejar clic en el botón "Enviar mensaje"
+    const sendMessageButton = document.getElementById("send-message");
+    sendMessageButton.addEventListener("click", function() {
+        const messageInput = document.getElementById("message").value;
+
+        // Obtener el nombre de usuario (solo la primera vez)
+        if (!username) {
+            username = prompt("Ingresa tu nombre de usuario");
+        }
+
+        // Enviar mensaje al servidor
+        socket.emit("message", {
+            username: username,
+            message: messageInput,
+            timestamp: new Date()
+        });
+
+        // Limpiar el área de texto después de enviar el mensaje
+        document.getElementById("message").value = "";
+    });
+
+    // Manejar mensajes recibidos del servidor
+    socket.on("message", function(data) {
+        // Generar HTML para el mensaje recibido
+        const html = generateMessageHTML(data.username, data.timestamp, data.message);
+
+        // Agregar el mensaje al contenedor de mensajes
+        const chatMessagesContainer = document.getElementById("chat-messages");
+        const messageElement = document.createElement("li");
+        messageElement.innerHTML = html;
+        chatMessagesContainer.appendChild(messageElement);
+    });
+
+    // Función para generar HTML para un mensaje
+    function generateMessageHTML(username, timestamp, message) {
+        let formattedTimestamp;
+        if (new Date().toLocaleDateString() === new Date(timestamp).toLocaleDateString()) {
+            formattedTimestamp = new Date(timestamp).toLocaleTimeString();
+        } else {
+            formattedTimestamp = new Date(timestamp).toLocaleString();
+        }
+
+        const html = `
+            <div class="flex space-x-2 pl-2 pt-2">
+                <div class="flex-shrink-0">
+                    <div class="h-10 w-10 rounded-full bg-indigo-400 flex items-center justify-center font-bold text-white">
+                        ${username.charAt(0).toUpperCase()}
+                    </div>
+                </div>
+                <div class="flex flex-col">
+                    <div class="flex items-baseline space-x-2">
+                        <div class="font-bold">
+                            ${username.charAt(0).toUpperCase() + username.slice(1)}
+                        </div>
+                        <div class="text-sm text-gray-400">
+                            ${formattedTimestamp}
+                        </div>
+                    </div>
+                    <div class="text-sm text-gray-500">
+                        ${message}
+                    </div>
+                </div>
+            </div>
+        `;
+        return html;
+    }
+});
+
+
+    </script>
+</head>
+<body>
+    <div class="grid h-screen">
+        <div class="flex max-h-screen flex-col">
+            <div class="header text-md border-b border-gray-200 py-4 pl-4 font-bold">Chat</div>
+            <div class="chat-messages flex-1 overflow-y-scroll">
+                <ul class="space-y-4" id="chat-messages">
+                    <!-- Los mensajes se agregarán dinámicamente aquí -->
+                </ul>
+            </div>
+            <div class="input-container p-4">
+                <div class="input-area flex h-28 w-full flex-col space-y-2 rounded-2xl border-2 border-gray-200 p-3">
+                    <textarea id="message" class="w-full flex-1 outline-none"></textarea>
+                    <div class="buttons flex flex-row items-center space-x-2 align-baseline">
+                        <div class="flex-1"></div>
+                        <div>
+                            <button id="send-message" class="float-right rounded-xl bg-indigo-500 p-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="white" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-5 w-5 text-indigo-600">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
