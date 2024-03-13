@@ -12,17 +12,13 @@
     const socket = io();
 
     // Variable para almacenar el nombre de usuario
-    let username;
+    let username = prompt("Ingresa tu nombre de usuario");
+    document.getElementById("user-header").innerText = "Chat (" + username + ")";
 
     // Manejar clic en el botón "Enviar mensaje"
     const sendMessageButton = document.getElementById("send-message");
     sendMessageButton.addEventListener("click", function() {
         const messageInput = document.getElementById("message").value;
-
-        // Obtener el nombre de usuario (solo la primera vez)
-        if (!username) {
-            username = prompt("Ingresa tu nombre de usuario");
-        }
 
         // Enviar mensaje al servidor
         socket.emit("message", {
@@ -88,7 +84,7 @@
 <body>
     <div class="grid h-screen">
         <div class="flex max-h-screen flex-col">
-            <div class="header text-md border-b border-gray-200 py-4 pl-4 font-bold">Chat</div>
+            <div class="header text-md border-b border-gray-200 py-4 pl-4 font-bold" id="user-header">Chat</div>
             <div class="chat-messages flex-1 overflow-y-scroll">
                 <ul class="space-y-4" id="chat-messages">
                     <!-- Los mensajes se agregarán dinámicamente aquí -->

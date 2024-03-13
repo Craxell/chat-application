@@ -17,7 +17,7 @@ if (cluster.isPrimary) {
     console.log(`Primary ${process.pid} is running`);
 
     const httpServer = http.createServer(app);
-    httpServer.listen(3001);
+    httpServer.listen(3050);
 
     setupMaster(httpServer, { loadBalancingMethod: "least-connection" });
 
@@ -66,10 +66,5 @@ if (cluster.isPrimary) {
     // Inicio
     app.get("/", (req, res) => {
         res.sendFile(path.join(__dirname, 'public', 'index.html'));
-    });
-
-
-    const server = httpServer.listen(3000, () => {
-        console.log(`Server listening on port ${server.address().port}`);
     });
 }
